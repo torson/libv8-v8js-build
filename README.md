@@ -18,6 +18,8 @@ docker build -t libv8-u2004 .
 ```
 docker run --rm -it -v $(pwd):/mount -w /mount libv8-u2004 bash
 
-./build.sh
+./build_libv8.sh
+./build_php_v8js.sh
+
 ```
 
