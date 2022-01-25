@@ -6,7 +6,7 @@ set -e
 export MOUNT_PATH=/mount
 export BUILD_PATH=${MOUNT_PATH}/build/v8js
 export PHP_VERSION=7.2
-export PHP_V8JS=2.1.2
+export PHP_V8JS_VERSION=2.1.2
 export LIBV8_VERSION=8.0.426.30
 
 run_command() { echo -e "\n\n--> $(date) [$(basename ${0})]: Running: $@" ; $@ ; CMD_EXIT_CODE=$? ; if [ "$CMD_EXIT_CODE" != "0" ]; then echo -e "\n\n--> $(date) [$(basename ${0})]: ERROR (run_command): command exited with exit code $CMD_EXIT_CODE " ; return $CMD_EXIT_CODE ; fi ; }
@@ -60,9 +60,9 @@ cd ${BUILD_PATH}
 run_command git clone https://github.com/amuluowin/v8js.git
 cd v8js
 # setting package version here since it contains the last commit hash
-export PHP_V8JS_PKG_VERSION=${PHP_V8JS}-amuluowin-3d64f08
+export PHP_V8JS_PKG_VERSION=${PHP_V8JS_VERSION}-amuluowin-3d64f08
 # git fetch --all --tags
-# git checkout tags/${PHP_V8JS}
+# git checkout tags/${PHP_V8JS_VERSION}
 run_command phpize
 run_command apt-get install -y re2c
 # ./configure --with-v8js=/opt/libv8 LDFLAGS="-lstdc++"

@@ -4,7 +4,7 @@ Modify the versions to your needs in `build_libv8.sh` and `build_php_v8js.sh`:
 ```
 LIBV8_VERSION
 PHP_VERSION
-PHP_V8JS
+PHP_V8JS_VERSION
 ```
 
 There might be more recent forks of v8js repo, check in `build_php_v8js.sh` above `git clone` line.
