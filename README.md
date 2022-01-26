@@ -11,12 +11,12 @@ There might be more recent forks of v8js repo, check in `build_php_v8js.sh` abov
 
 # Build the docker image
 ```
-docker build -t libv8-u2004 .
+docker build -t libv8-v8js-u2004 .
 ```
 
 # Start the container and build V8 and php-v8js
 ```
-docker run --rm -it -v $(pwd):/mount -w /mount libv8-u2004 bash
+docker run --rm -it -v $(pwd):/mount -w /mount libv8-v8js-u2004 bash
 
 ./build_libv8.sh
 ./build_php_v8js.sh
