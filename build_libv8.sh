@@ -60,6 +60,7 @@ PACKAGING_DEB_CONTROL_FILE=${MOUNT_PATH}/assets-libv8/deb.libv8.control.tmpl
 [ -d ${PACKAGING_PATH}/DEBIAN ${PACKAGING_PATH}/opt/libv8 ] || run_command mkdir -p ${PACKAGING_PATH}/DEBIAN ${PACKAGING_PATH}/opt/libv8
 
 # populating envvars for deb control file
+#  > adjust DEB_CONTROL_DEPENDS_*_NAME package names based on the packages used in the specific Ubuntu distribution
 cd ${MOUNT_PATH}
 export DEB_CONTROL_INSTALLED_SIZE=$(./du.pl -p=${BUILD_PATH}/build/${LIBV8_VERSION} | awk '{printf "%0.0f\n", $1/1000}')
 export DEB_CONTROL_DEPENDS_LIBC_NAME=libc6
