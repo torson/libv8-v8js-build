@@ -15,9 +15,9 @@ log() { echo -e "\n--> $(date) [$(basename ${0})]: $1" ; }
 [ -d ${BUILD_PATH} ] || run_command mkdir -p ${BUILD_PATH}
 cd ${BUILD_PATH}
 
-# Install required dependencies
-run_command apt-get -y update
-run_command apt-get install -y build-essential curl git python libglib2.0-dev libtinfo5
+# # Install required dependencies
+# run_command apt-get -y update
+# run_command apt-get install -y build-essential curl git python libglib2.0-dev libtinfo5
 
 # Install depot_tools first (needed for source checkout)
 run_command git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git

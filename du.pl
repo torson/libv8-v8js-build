@@ -43,7 +43,7 @@ $help .= "\n\t-p=path1[,path2,...]          ; file or directory path(s), absolut
 $help .= "\n\t-ip=path1[,path2,...]         ; ignore subpaths inside paths ";
 $help .= "\n\t-s                            ; split output size for each set path";
 $help .= "\n\t-v                            ; verbose, print info output during processing";
-$help .= "\n\t-vm                           ; verbose but match only specific paths, print info output during processing";
+$help .= "\n\t-vm=logs                      ; verbose but match only specific paths, print info output during processing";
 $help .= "\n\nEXAMPLE: \n\t$0 -p=/var/log -ip=monit   ; calculate size of /var/log and ignore subfolder monit (/var/log/monit)";
 $help .= "\n\nEXAMPLE: \n\t$0 -p=log,/var/lib -ip=monit,php";
 $help .= "\n\n";
@@ -173,6 +173,7 @@ sub dirSize {
           my($path) = "$dir/$item";
 
           if (! -l $path) {
+               if ($verbose) { print "$path\n"; }
                $size += ((-d $path) ? dirSize($path, $dirOrig) : (-f $path ? (stat($path))[7] : 0));
           }
      }
