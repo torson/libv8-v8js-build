@@ -2,9 +2,10 @@
 set -e
 
 # instructions from : https://github.com/phpv8/v8js/blob/php7/README.Linux.md
+# v8 repo : https://github.com/v8/v8 , get the version branch here
 
-# export LIBV8_VERSION=6.5.257
-export LIBV8_VERSION=8.0.426.30     # 8.0.426.30 is used in README.Linux.md
+## this is set in build.sh
+# export LIBV8_VERSION=12.0.267
 
 export MOUNT_PATH=/mount
 export BUILD_PATH=${MOUNT_PATH}/build/libv8
@@ -20,16 +21,32 @@ cd ${BUILD_PATH}
 # run_command apt-get install -y build-essential curl git python libglib2.0-dev libtinfo5
 
 # Install depot_tools first (needed for source checkout)
-run_command git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+if [ ! -d depot_tools ]; then
+    run_command git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+fi
 export PATH=`pwd`/depot_tools:"$PATH"
 
 # Download v8
-run_command fetch v8
-cd v8
+if [ ! -d v8 ]; then
+    run_command fetch v8
+fi
+
+log "LIBV8_VERSION=${LIBV8_VERSION}"
+
+if [ -d ${BUILD_PATH}/build/${LIBV8_VERSION} ]; then
+    log "INFO: Folder ${BUILD_PATH}/build/${LIBV8_VERSION} already exists, seems this version was already built. Otherwise manually remove this folder. Continuing with next version..."
+    exit
+fi
+
+cd ${BUILD_PATH}/v8
+if [ -d out.gn ]; then
+    log "Removing folder out.gn - previous build content"
+    rm -Rf out.gn
+fi
 
 # (optional) If you'd like to build a certain version:
 run_command git checkout ${LIBV8_VERSION}
-run_command gclient sync
+run_command gclient sync -D
 
 # Setup GN
 run_command tools/dev/v8gen.py -vv x64.release -- is_component_build=true use_custom_libcxx=false
@@ -38,7 +55,7 @@ run_command tools/dev/v8gen.py -vv x64.release -- is_component_build=true use_cu
 run_command ninja -C out.gn/x64.release/
 
 # copy build artifacts
-cd ..
+cd ${BUILD_PATH}
 [ -d build/${LIBV8_VERSION}/lib ] || run_command mkdir -p build/${LIBV8_VERSION}/lib
 [ -d build/${LIBV8_VERSION}/include ] || run_command mkdir -p build/${LIBV8_VERSION}/include
 
@@ -46,7 +63,6 @@ run_command cp v8/out.gn/x64.release/lib*.so v8/out.gn/x64.release/*_blob.bin v8
 run_command cp -R v8/include/* build/${LIBV8_VERSION}/include/
 
 # set RPATH on the installed libraries, so the library loader finds the dependencies
-run_command apt-get install patchelf
 for A in build/${LIBV8_VERSION}/lib/*.so; do echo $A ; patchelf --set-rpath '$ORIGIN' $A; done
 
 # build deb package
@@ -71,7 +87,7 @@ export DEB_CONTROL_DEPENDS_LIBSTDCPP_NAME=libstdc++6
 export DEB_CONTROL_DEPENDS_LIBSTDCPP_VERSION=$(dpkg -l | grep ${DEB_CONTROL_DEPENDS_LIBSTDCPP_NAME} | head -n 1 | awk '{print $3}' | sed -r 's/-.+//')
 
 # setting control file
-run_command apt-get install -y gettext-base
+export DISTRIB_CODENAME=${DISTRIB_CODENAME}
 envsubst < ${PACKAGING_DEB_CONTROL_FILE} > ${PACKAGING_PATH}/DEBIAN/control
 
 # copying package content
@@ -85,4 +101,5 @@ run_command dpkg-deb --build $(basename ${PACKAGING_PATH})
 PACKAGE_FILE=libv8_${LIBV8_VERSION}-${DISTRIB_CODENAME}_amd64.deb
 run_command mv $(basename ${PACKAGING_PATH}).deb ${PACKAGE_FILE}
 
-run_command dpkg -i ${PACKAGE_FILE}
+# installing the last version built
+# run_command dpkg -i ${PACKAGE_FILE}
