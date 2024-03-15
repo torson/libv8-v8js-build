@@ -45,11 +45,11 @@ run_command git checkout ${PHP_V8JS_REPO_COMMIT}
 # git fetch --all --tags
 # git checkout tags/${PHP_V8JS_VERSION}
 
-run_command make clean
 run_command phpize
 # ./configure --with-v8js=/opt/libv8 LDFLAGS="-lstdc++"
 # ./configure --with-php-config=/usr/bin/php-config --with-v8js=/opt/libv8 LDFLAGS="-lstdc++"
 run_command ./configure --with-php-config=/usr/bin/php-config --with-v8js=/opt/libv8 LDFLAGS="-lstdc++" CPPFLAGS="-DV8_COMPRESS_POINTERS"
+run_command make clean
 run_command make
 
 ## skipping tests as there is one failing
