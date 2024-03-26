@@ -48,7 +48,9 @@ run_command git checkout ${PHP_V8JS_REPO_COMMIT}
 run_command phpize
 # ./configure --with-v8js=/opt/libv8 LDFLAGS="-lstdc++"
 # ./configure --with-php-config=/usr/bin/php-config --with-v8js=/opt/libv8 LDFLAGS="-lstdc++"
-run_command ./configure --with-php-config=/usr/bin/php-config --with-v8js=/opt/libv8 LDFLAGS="-lstdc++" CPPFLAGS="-DV8_COMPRESS_POINTERS"
+echo './configure --with-php-config=/usr/bin/php-config --with-v8js=/opt/libv8 LDFLAGS="-lstdc++" CPPFLAGS="-DV8_COMPRESS_POINTERS -DV8_ENABLE_SANDBOX"'
+./configure --with-php-config=/usr/bin/php-config --with-v8js=/opt/libv8 LDFLAGS="-lstdc++" CPPFLAGS="-DV8_COMPRESS_POINTERS -DV8_ENABLE_SANDBOX"
+
 run_command make clean
 run_command make
 

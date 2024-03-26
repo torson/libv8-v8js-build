@@ -23,7 +23,7 @@ export PHP_V8JS_REPO=https://github.com/${PHP_V8JS_REPO_GITHUB_USER}/${PHP_V8JS_
 # doing checkout to commit instead of branch so we know exactly which commit the package was built from
 # export PHP_V8JS_REPO_BRANCH=php8
 export PHP_V8JS_REPO_COMMIT=1b521b3
-export PHP_V8JS_VERSION=2.1.2
+export PHP_V8JS_VERSION=2.1.2.1
 # adding also v8js repo and commitID to the package version
 export PHP_V8JS_VERSION_SUFFIX=${PHP_V8JS_REPO_GITHUB_USER}-${PHP_V8JS_REPO_GITHUB_REPO}-${PHP_V8JS_REPO_COMMIT}
 
