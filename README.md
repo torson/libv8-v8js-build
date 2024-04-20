@@ -19,10 +19,10 @@ With using `--rm` the container and all it's content (but not the mounted curren
 
 ```
 # 20.04 Focal
-docker run --rm -it -v $(pwd):/mount -w /mount ubuntu:focal
+docker run -it -v $(pwd):/mount -w /mount --name ubuntu2004-libv8-packaging ubuntu:focal
 
 # 22.04 Jammy
-docker run --rm -it -v $(pwd):/mount -w /mount ubuntu:jammy
+docker run -it -v $(pwd):/mount -w /mount --name ubuntu2204-libv8-packaging ubuntu:jammy
 ```
 
 ### 2. Inside the container run:

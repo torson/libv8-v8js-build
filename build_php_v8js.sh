@@ -15,8 +15,8 @@ set -e
 # export PHP_V8JS_VERSION=2.1.2
 # export PHP_V8JS_VERSION_SUFFIX=${PHP_V8JS_REPO_GITHUB_USER}-${PHP_V8JS_REPO_GITHUB_REPO}-${PHP_V8JS_REPO_COMMIT}
 
-export MOUNT_PATH=/mount
 export BUILD_PATH=${MOUNT_PATH}/build/v8js
+export PACKAGE_LIBV8_PATH=$(cat ${MOUNT_PATH}/build/PACKAGE_LIBV8_PATH)
 
 run_command() { echo -e "\n\n--> $(date) [$(basename ${0})]: Running: $@" ; $@ ; CMD_EXIT_CODE=$? ; if [ "$CMD_EXIT_CODE" != "0" ]; then echo -e "\n\n--> $(date) [$(basename ${0})]: ERROR (run_command): command exited with exit code $CMD_EXIT_CODE " ; return $CMD_EXIT_CODE ; fi ; }
 log() { echo -e "\n--> $(date) [$(basename ${0})]: $1" ; }
@@ -46,10 +46,10 @@ run_command git checkout ${PHP_V8JS_REPO_COMMIT}
 # git checkout tags/${PHP_V8JS_VERSION}
 
 run_command phpize
-# ./configure --with-v8js=/opt/libv8 LDFLAGS="-lstdc++"
-# ./configure --with-php-config=/usr/bin/php-config --with-v8js=/opt/libv8 LDFLAGS="-lstdc++"
-echo './configure --with-php-config=/usr/bin/php-config --with-v8js=/opt/libv8 LDFLAGS="-lstdc++" CPPFLAGS="-DV8_COMPRESS_POINTERS -DV8_ENABLE_SANDBOX"'
-./configure --with-php-config=/usr/bin/php-config --with-v8js=/opt/libv8 LDFLAGS="-lstdc++" CPPFLAGS="-DV8_COMPRESS_POINTERS -DV8_ENABLE_SANDBOX"
+# ./configure --with-v8js=${PACKAGE_LIBV8_PATH} LDFLAGS="-lstdc++"
+# ./configure --with-php-config=/usr/bin/php-config --with-v8js=${PACKAGE_LIBV8_PATH} LDFLAGS="-lstdc++"
+echo './configure --with-php-config=/usr/bin/php-config --with-v8js=${PACKAGE_LIBV8_PATH} LDFLAGS="-lstdc++" CPPFLAGS="-DV8_COMPRESS_POINTERS -DV8_ENABLE_SANDBOX"'
+./configure --with-php-config=/usr/bin/php-config --with-v8js=${PACKAGE_LIBV8_PATH} LDFLAGS="-lstdc++" CPPFLAGS="-DV8_COMPRESS_POINTERS -DV8_ENABLE_SANDBOX"
 
 run_command make clean
 run_command make

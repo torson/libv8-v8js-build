@@ -4,6 +4,8 @@
 run_command() { echo -e "\n\n--> $(date) [$(basename ${0})]: Running: $@" ; $@ ; CMD_EXIT_CODE=$? ; if [ "$CMD_EXIT_CODE" != "0" ]; then echo -e "\n\n--> $(date) [$(basename ${0})]: ERROR (run_command): command exited with exit code $CMD_EXIT_CODE " ; return $CMD_EXIT_CODE ; fi ; }
 log() { echo -e "\n--> $(date) [$(basename ${0})]: $1" ; }
 
+export MOUNT_PATH=/mount
+
 ## libv8 vars
 #    > You can set multiple versions to LIBV8_BUILD_VERSIONS to build multiple versions (when testing version build compatibility with v8js extension)
 #      This will then iterate through these versions, first build libv8 and then try to build v8js.
@@ -14,6 +16,7 @@ log() { echo -e "\n--> $(date) [$(basename ${0})]: $1" ; }
 # export LIBV8_BUILD_VERSIONS="12.4.204 12.3.105 12.2.281 12.1.285 12.0.267 11.9.172 11.8.173"
 # 12.0.267 is the latest version that is compatible with latest (as of this writing) phpv8/v8js commit 1b521b3
 export LIBV8_BUILD_VERSIONS="12.0.267"
+export SKIP_BUILD_LIBV8=true
 
 ## php-v8js vars
 export PHP_VERSION=8.3
