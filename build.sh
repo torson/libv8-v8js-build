@@ -16,7 +16,7 @@ export MOUNT_PATH=/mount
 # export LIBV8_BUILD_VERSIONS="12.4.204 12.3.105 12.2.281 12.1.285 12.0.267 11.9.172 11.8.173"
 # 12.0.267 is the latest version that is compatible with latest (as of this writing) phpv8/v8js commit 1b521b3
 export LIBV8_BUILD_VERSIONS="12.0.267"
-export SKIP_BUILD_LIBV8=true
+export SKIP_BUILD_LIBV8=false
 
 ## php-v8js vars
 export PHP_VERSION=8.3
