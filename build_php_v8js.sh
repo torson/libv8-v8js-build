@@ -51,7 +51,7 @@ run_command make
 export PHP_V8JS_PKG_VERSION=${PHP_V8JS_VERSION}-${PHP_V8JS_VERSION_SUFFIX}-libv8-${LIBV8_VERSION}-${DISTRIB_CODENAME}
 
 log "build deb with checkinstall to strip ELF binaries and libraries"
-run_command checkinstall -y --install=no --pkgname=php${PHP_VERSION}-v8js --pkgversion=${PHP_V8JS_PKG_VERSION} --pkggroup=Application/Accessories
+run_command checkinstall --fstrans=no -y --install=no --pkgname=php${PHP_VERSION}-v8js --pkgversion=${PHP_V8JS_PKG_VERSION} --pkggroup=Application/Accessories
 
 export CHECKINSTALL_DEB_FOLDER=php${PHP_VERSION}-v8js_${PHP_V8JS_PKG_VERSION}-1_amd64
 export CHECKINSTALL_DEB_FILE=${CHECKINSTALL_DEB_FOLDER}.deb
