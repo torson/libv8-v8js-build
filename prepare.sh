@@ -29,20 +29,36 @@ if [ ! -f /system_prepare.done ]; then
             curl \
             git \
             libglib2.0-dev \
-            libtinfo5 \
             patchelf
 
         source /etc/lsb-release
         if [ "$(echo ${DISTRIB_RELEASE} | tr -d .)" -eq "2004" ]; then
             # 20.04 Focal
             run_command apt-get -y install \
-                    python2 python-is-python2
+                    python2 python-is-python2 \
+                    libtinfo5
         elif [ "$(echo ${DISTRIB_RELEASE} | tr -d .)" -eq "2204" ]; then
             # 22.04 Jammy
             run_command apt-get -y install \
-                    python2
-            # manualy creating default python executable pointing to python2
+                    python2 \
+                    libtinfo5
+            log "Manualy creating default python executable pointing to python2"
             run_command ln -sf python2 /usr/bin/python
+        elif [ "$(echo ${DISTRIB_RELEASE} | tr -d .)" -eq "2404" ]; then
+            # 24.04 Noble
+            run_command apt-get -y install \
+                    libtinfo6
+            log "For getting python2 on 24.04 we install python2 packages from 22.04"
+            log "Setting apt sources to Jammy"
+            sed -i 's/noble/jammy/g' /etc/apt/sources.list.d/ubuntu.sources
+            run_command apt-get update
+            run_command apt-get -y install \
+                    python2
+            log "Manualy creating default python executable pointing to python2"
+            run_command ln -sf python2 /usr/bin/python
+            log "Reverting apt sources to Noble"
+            sed -i 's/jammy/noble/g' /etc/apt/sources.list.d/ubuntu.sources
+            run_command apt-get update
         fi
 
     log "Dependencies for building php-v8js"

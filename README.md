@@ -1,4 +1,4 @@
-This builds V8 and php-v8js on Ubuntu 20.04 Focal or 22.04 Jammy, depending which docker image you use .
+This builds V8 and php-v8js on Ubuntu 20.04 Focal, 22.04 Jammy and 24.04 Noble, depending which docker image you use .
 
 Modify the versions to your needs in `build.sh`:
 ```
@@ -23,6 +23,9 @@ docker run -it -v $(pwd):/mount -w /mount --name ubuntu2004-libv8-packaging ubun
 
 # 22.04 Jammy
 docker run -it -v $(pwd):/mount -w /mount --name ubuntu2204-libv8-packaging ubuntu:jammy
+
+# 24.04 Noble
+docker run -it -v $(pwd):/mount -w /mount --name ubuntu2404-libv8-packaging ubuntu:noble
 ```
 
 ### 2. Inside the container run:
