@@ -11,12 +11,13 @@ export MOUNT_PATH=/mount
 #      This will then iterate through these versions, first build libv8 and then try to build v8js.
 #      If v8js build fails it then continues with the next libv8 version. If v8js build succeedes the script then exits as the purpose is to find compatible version match.
 #      Values should go from newest version to oldest version as one generally wants the latest compatible version
-#      The purpose of this is to run this script and leave it running for hours - as building libv8 takes can take 1h or even much longer depending on your CPU power
+#      The purpose of this is to run this script and leave it running for hours - as building libv8 can take 1h or even much longer depending on your CPU power
 
 # export LIBV8_BUILD_VERSIONS="12.4.204 12.3.105 12.2.281 12.1.285 12.0.267 11.9.172 11.8.173"
 # 12.0.267 is the latest version that is compatible with latest (as of this writing) phpv8/v8js commit 1b521b3
 export LIBV8_BUILD_VERSIONS="12.0.267"
 export SKIP_BUILD_LIBV8=false
+export SKIP_BUILD_AND_PACKAGE_LIBV8=false
 
 ## php-v8js vars
 export PHP_VERSION=8.3
@@ -33,12 +34,26 @@ export PHP_V8JS_VERSION_SUFFIX=${PHP_V8JS_REPO_GITHUB_USER}-${PHP_V8JS_REPO_GITH
 log "### Installing dependencies"
 ./prepare.sh
 
+if [ "$?" != "0" ]; then
+    echo "ERROR: prepare.sh failed!"
+    exit 1
+fi
+
+# fetching DISTRIB_CODENAME
+source /etc/lsb-release
+# for testing in shell you need to export envvars:
+# export "$(cat /etc/lsb-release | tr '\n' ' ')"
+
 for LIBV8_VERSION in ${LIBV8_BUILD_VERSIONS} ; do
     export LIBV8_VERSION=${LIBV8_VERSION}
-    log "### Building libv8 , LIBV8_VERSION=${LIBV8_VERSION}"
-    ./build_libv8.sh
-
-    log "### Building v8js extension , LIBV8_VERSION=${LIBV8_VERSION}"
+    export LIBV8_PACKAGE_FILE=libv8_${LIBV8_VERSION}-${DISTRIB_CODENAME}-${LIBV8_PACKAGE_REVISION}_amd64.deb
+    if [ "${SKIP_BUILD_AND_PACKAGE_LIBV8}" != "true" ]; then
+        log "### Building and packaging libv8 , LIBV8_VERSION=${LIBV8_VERSION}"
+        ./build_libv8.sh
+    else
+        log "### Not building and packaging libv8 , SKIP_BUILD_AND_PACKAGE_LIBV8=${SKIP_BUILD_AND_PACKAGE_LIBV8}"
+    fi
+    log "### Building v8js extension , PHP_V8JS_VERSION=${PHP_V8JS_VERSION} , LIBV8_VERSION=${LIBV8_VERSION}"
     ./build_php_v8js.sh
 
     if [ "$?" = "0" ]; then
