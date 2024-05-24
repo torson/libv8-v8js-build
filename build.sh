@@ -16,6 +16,7 @@ export MOUNT_PATH=/mount
 # export LIBV8_BUILD_VERSIONS="12.4.204 12.3.105 12.2.281 12.1.285 12.0.267 11.9.172 11.8.173"
 # 12.0.267 is the latest version that is compatible with latest (as of this writing) phpv8/v8js commit 1b521b3
 export LIBV8_BUILD_VERSIONS="12.0.267"
+export LIBV8_PACKAGE_REVISION="1"
 export SKIP_BUILD_LIBV8=false
 export SKIP_BUILD_AND_PACKAGE_LIBV8=false
 
@@ -28,6 +29,7 @@ export PHP_V8JS_REPO=https://github.com/${PHP_V8JS_REPO_GITHUB_USER}/${PHP_V8JS_
 # export PHP_V8JS_REPO_BRANCH=php8
 export PHP_V8JS_REPO_COMMIT=1b521b3
 export PHP_V8JS_VERSION=2.1.2.1
+export PHP_V8JS_PACKAGE_REVISION="1"
 # adding also v8js repo and commitID to the package version
 export PHP_V8JS_VERSION_SUFFIX=${PHP_V8JS_REPO_GITHUB_USER}-${PHP_V8JS_REPO_GITHUB_REPO}-${PHP_V8JS_REPO_COMMIT}
 

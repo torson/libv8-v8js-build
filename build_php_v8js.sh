@@ -3,18 +3,6 @@ set -e
 
 # instructions from (but they are outdated) : https://github.com/phpv8/v8js/blob/php7/README.Linux.md
 
-## these are set in build.sh
-# export LIBV8_VERSION=12.0.267
-# export PHP_VERSION=8.3
-# export PHP_V8JS_REPO_GITHUB_USER=phpv8
-# export PHP_V8JS_REPO_GITHUB_REPO=v8js
-# export PHP_V8JS_REPO=https://github.com/${PHP_V8JS_REPO_GITHUB_USER}/${PHP_V8JS_REPO_GITHUB_REPO}
-# # doing checkout to commit instead of branch so we know exactly which commit the package was built from
-# # export PHP_V8JS_REPO_BRANCH=php8
-# export PHP_V8JS_REPO_COMMIT=1b521b3
-# export PHP_V8JS_VERSION=2.1.2
-# export PHP_V8JS_VERSION_SUFFIX=${PHP_V8JS_REPO_GITHUB_USER}-${PHP_V8JS_REPO_GITHUB_REPO}-${PHP_V8JS_REPO_COMMIT}
-
 export BUILD_PATH=${MOUNT_PATH}/build/v8js
 export PACKAGE_LIBV8_PATH=$(cat ${MOUNT_PATH}/build/PACKAGE_LIBV8_PATH)
 
@@ -24,12 +12,14 @@ log() { echo -e "\n--> $(date) [$(basename ${0})]: $1" ; }
 # fetching DISTRIB_CODENAME
 source /etc/lsb-release
 # for testing in shell you need to export envvars:
-export "$(cat /etc/lsb-release | tr '\n' ' ')"
+# export "$(cat /etc/lsb-release | tr '\n' ' ')"
+
 log DISTRIB_CODENAME=${DISTRIB_CODENAME}
 
 log "Installing libv8"
 log "LIBV8_VERSION=${LIBV8_VERSION}"
-run_command dpkg -i ${MOUNT_PATH}/build/libv8/libv8_${LIBV8_VERSION}-${DISTRIB_CODENAME}_amd64.deb
+log "LIBV8_PACKAGE_FILE=${LIBV8_PACKAGE_FILE}"
+run_command dpkg -i ${MOUNT_PATH}/build/libv8/${LIBV8_PACKAGE_FILE}
 run_command apt-get -f install
 
 log "Building v8js"
@@ -58,7 +48,7 @@ run_command make
 # run_command make test
 # sudo make install
 
-export PHP_V8JS_PKG_VERSION=${PHP_V8JS_VERSION}-${PHP_V8JS_VERSION_SUFFIX}-libv8-${LIBV8_VERSION}
+export PHP_V8JS_PKG_VERSION=${PHP_V8JS_VERSION}-${PHP_V8JS_VERSION_SUFFIX}-libv8-${LIBV8_VERSION}-${DISTRIB_CODENAME}
 
 log "build deb with checkinstall to strip ELF binaries and libraries"
 run_command checkinstall -y --install=no --pkgname=php${PHP_VERSION}-v8js --pkgversion=${PHP_V8JS_PKG_VERSION} --pkggroup=Application/Accessories
@@ -70,7 +60,7 @@ export CHECKINSTALL_DEB_FILE=${CHECKINSTALL_DEB_FOLDER}.deb
 run_command dpkg-deb --extract ${CHECKINSTALL_DEB_FILE} ${CHECKINSTALL_DEB_FOLDER}/
 
 log "build deb package"
-export PACKAGE_NAME=php${PHP_VERSION}-v8js_${PHP_V8JS_PKG_VERSION}-${DISTRIB_CODENAME}_amd64
+export PACKAGE_NAME=php${PHP_VERSION}-v8js_${PHP_V8JS_PKG_VERSION}-${PHP_V8JS_PACKAGE_REVISION}_amd64
 export PACKAGE_FILE=${PACKAGE_NAME}.deb
 export PACKAGING_PATH=${BUILD_PATH}/package_${PACKAGE_NAME}
 export PACKAGING_DEB_CONTROL_FILE=${MOUNT_PATH}/assets-php-v8js/deb.php-v8js.control.tmpl

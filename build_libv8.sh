@@ -4,10 +4,13 @@ set -e
 # instructions from : https://github.com/phpv8/v8js/blob/php7/README.Linux.md
 # v8 repo : https://github.com/v8/v8 , get the version branch here
 
-## this is set in build.sh
-# export LIBV8_VERSION=12.0.267
+# fetching DISTRIB_CODENAME
+source /etc/lsb-release
+# for testing in shell you need to export envvars:
+# export "$(cat /etc/lsb-release | tr '\n' ' ')"
 
 export BUILD_PATH=${MOUNT_PATH}/build/libv8
+export BUILD_OUTPUT_PATH=build/${DISTRIB_CODENAME}/${LIBV8_VERSION}
 export PACKAGE_LIBV8_PATH=/opt/libv8-${LIBV8_VERSION}
 
 # storing PACKAGE_LIBV8_PATH so that build_php_v8js.sh will use it
@@ -42,8 +45,8 @@ if [ "${SKIP_BUILD_LIBV8}" != "true" ]; then
         run_command fetch v8
     fi
 
-    if [ -d ${BUILD_PATH}/build/${LIBV8_VERSION} ]; then
-        log "INFO: Folder ${BUILD_PATH}/build/${LIBV8_VERSION} already exists, seems this version was already built. Otherwise manually remove this folder. Continuing with next version..."
+    if [ -d ${BUILD_PATH}/${BUILD_OUTPUT_PATH} ]; then
+        log "INFO: Folder ${BUILD_PATH}/${BUILD_OUTPUT_PATH} already exists, seems this version was already built. Otherwise manually remove this folder"
         exit
     fi
 
@@ -65,22 +68,18 @@ if [ "${SKIP_BUILD_LIBV8}" != "true" ]; then
 
     # copy build artifacts
     cd ${BUILD_PATH}
-    [ -d build/${LIBV8_VERSION}/lib ] || run_command mkdir -p build/${LIBV8_VERSION}/lib
-    [ -d build/${LIBV8_VERSION}/include ] || run_command mkdir -p build/${LIBV8_VERSION}/include
+    [ -d ${BUILD_OUTPUT_PATH}/lib ] || run_command mkdir -p ${BUILD_OUTPUT_PATH}/lib
+    [ -d ${BUILD_OUTPUT_PATH}/include ] || run_command mkdir -p ${BUILD_OUTPUT_PATH}/include
 
-    run_command cp v8/out.gn/x64.release/lib*.so v8/out.gn/x64.release/*_blob.bin v8/out.gn/x64.release/icudtl.dat build/${LIBV8_VERSION}/lib/
-    run_command cp -R v8/include/* build/${LIBV8_VERSION}/include/
+    run_command cp v8/out.gn/x64.release/lib*.so v8/out.gn/x64.release/*_blob.bin v8/out.gn/x64.release/icudtl.dat ${BUILD_OUTPUT_PATH}/lib/
+    run_command cp -R v8/include/* ${BUILD_OUTPUT_PATH}/include/
 
     # set RPATH on the installed libraries, so the library loader finds the dependencies
-    for A in build/${LIBV8_VERSION}/lib/*.so; do echo $A ; patchelf --set-rpath '$ORIGIN' $A; done
+    for A in ${BUILD_OUTPUT_PATH}/lib/*.so; do echo $A ; patchelf --set-rpath '$ORIGIN' $A; done
 fi
 
 # build deb package
-# fetching DISTRIB_CODENAME
-source /etc/lsb-release
-# for testing in shell you need to export envvars:
-export "$(cat /etc/lsb-release | tr '\n' ' ')"
-PACKAGING_PATH=${BUILD_PATH}/package_libv8_${LIBV8_VERSION}
+PACKAGING_PATH=${BUILD_PATH}/package_libv8_${LIBV8_VERSION}-${DISTRIB_CODENAME}
 PACKAGING_DEB_CONTROL_FILE=${MOUNT_PATH}/assets-libv8/deb.libv8.control.tmpl
 
 [ -d ${PACKAGING_PATH}/DEBIAN ] || run_command mkdir -p ${PACKAGING_PATH}/DEBIAN
@@ -91,7 +90,7 @@ PACKAGING_DEB_CONTROL_FILE=${MOUNT_PATH}/assets-libv8/deb.libv8.control.tmpl
 cd ${MOUNT_PATH}
 # adding version to package name so we can have multiple packages installed - and with that multiple PHP versions, v8js compiled with different libv8 versions
 export DEB_CONTROL_PACKAGE_NAME=libv8-${LIBV8_VERSION}
-export DEB_CONTROL_INSTALLED_SIZE=$(./du.pl -p=${BUILD_PATH}/build/${LIBV8_VERSION} | awk '{printf "%0.0f\n", $1/1000}')
+export DEB_CONTROL_INSTALLED_SIZE=$(./du.pl -p=${BUILD_PATH}/${BUILD_OUTPUT_PATH} | awk '{printf "%0.0f\n", $1/1000}')
 export DEB_CONTROL_DEPENDS_LIBC_NAME=libc6
 export DEB_CONTROL_DEPENDS_LIBC_VERSION=$(dpkg -l | grep ${DEB_CONTROL_DEPENDS_LIBC_NAME} | head -n 1 | awk '{print $3}' | sed -r 's/-.+//')
 export DEB_CONTROL_DEPENDS_LIBGCC_NAME=libgcc-s1
@@ -104,15 +103,14 @@ export DISTRIB_CODENAME=${DISTRIB_CODENAME}
 envsubst < ${PACKAGING_DEB_CONTROL_FILE} > ${PACKAGING_PATH}/DEBIAN/control
 
 # copying package content
-run_command cp -R ${BUILD_PATH}/build/${LIBV8_VERSION}/* ${PACKAGING_PATH}${PACKAGE_LIBV8_PATH}/
+run_command cp -R ${BUILD_PATH}/${BUILD_OUTPUT_PATH}/* ${PACKAGING_PATH}${PACKAGE_LIBV8_PATH}/
 
 # creating deb file
 chown -R root:root ${PACKAGING_PATH}
 cd ${PACKAGING_PATH}/..
 run_command dpkg-deb --build $(basename ${PACKAGING_PATH})
 
-PACKAGE_FILE=libv8_${LIBV8_VERSION}-${DISTRIB_CODENAME}_amd64.deb
-run_command mv $(basename ${PACKAGING_PATH}).deb ${PACKAGE_FILE}
+run_command mv $(basename ${PACKAGING_PATH}).deb ${LIBV8_PACKAGE_FILE}
 
 # installing the last version built
-# run_command dpkg -i ${PACKAGE_FILE}
+# run_command dpkg -i ${LIBV8_PACKAGE_FILE}
